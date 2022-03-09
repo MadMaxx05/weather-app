@@ -4,13 +4,15 @@
 
 <script>
 import { ref } from "vue";
-import { useStore } from "@/store/index";
+import { useWeatherState } from "@/store/weatherState";
+import { useConstants } from "@/store/constants";
 
 export default {
   name: "FindLocation",
 
   setup() {
-    const store = useStore();
+    const weatherState = useWeatherState();
+    const constants = useConstants();
     const lat = ref();
     const lon = ref();
 
@@ -20,14 +22,12 @@ export default {
 
       try {
         let response = await fetch(
-          `${store.api_base}?lat=${lat.value}&lon=${lon.value}&days=8&key=${store.api_key}`
+          `${constants.api_base}?lat=${lat.value}&lon=${lon.value}&days=8&key=${constants.api_key}`
         );
-        store.weather = await response.json();
+        weatherState.setWeather(await response.json());
       } catch (err) {
         alert(err);
       }
-
-      store.setBackground();
     }
 
     function error() {

@@ -1,49 +1,51 @@
 <template>
-  <h2 class="daily-forecast-title">Next 7 days</h2>
-  <swiper
-    class="daily-forecast"
-    :slidesPerView="1.5"
-    :spaceBetween="17"
-    :freeMode="true"
-    :breakpoints="{
-      '375': {
-        slidesPerView: 2,
-      },
-      '420': {
-        slidesPerView: 2.5,
-      },
-      '500': {
-        slidesPerView: 3,
-      },
-      '650': {
-        slidesPerView: 4,
-      },
-      '800': {
-        slidesPerView: 5,
-      },
-      '1000': {
-        slidesPerView: 6.5,
-      },
-    }"
-    :modules="modules"
-  >
-    <swiper-slide
-      v-for="item in store.weather.data.slice(1)"
-      :key="item.id"
-      class="daily-forecast-item"
+  <div>
+    <h2 class="daily-forecast-title">Next 7 days</h2>
+    <swiper
+      class="daily-forecast"
+      :slidesPerView="1.5"
+      :spaceBetween="17"
+      :freeMode="true"
+      :breakpoints="{
+        '375': {
+          slidesPerView: 2,
+        },
+        '420': {
+          slidesPerView: 2.5,
+        },
+        '500': {
+          slidesPerView: 3,
+        },
+        '650': {
+          slidesPerView: 4,
+        },
+        '800': {
+          slidesPerView: 5,
+        },
+        '1000': {
+          slidesPerView: 6.5,
+        },
+      }"
+      :modules="modules"
     >
-      <p>{{ getDate(item.datetime) }}</p>
-      <img
-        class="weather-icon"
-        :src="require(`@/assets/icons/${store.setIcon(item.weather.code)}`)"
-        width="75"
-        height="75"
-      />
-      <p class="temp">
-        {{ Math.floor(item.temp) }}<span class="degrees">°C</span>
-      </p>
-    </swiper-slide>
-  </swiper>
+      <swiper-slide
+        v-for="item in weatherState.weather.data.slice(1)"
+        :key="item.id"
+        class="daily-forecast-item"
+      >
+        <p>{{ getDate(item.datetime) }}</p>
+        <img
+          class="weather-icon"
+          :src="require(`@/assets/icons/${setIcon(item.weather.code)}`)"
+          width="75"
+          height="75"
+        />
+        <p class="temp">
+          {{ Math.floor(item.temp) }}<span class="degrees">°C</span>
+        </p>
+      </swiper-slide>
+    </swiper>
+  </div>
 </template>
 
 <script>
@@ -56,7 +58,7 @@ import "swiper/swiper-bundle.min.css";
 // Import required modules
 import { FreeMode } from "swiper";
 
-import { useStore } from "@/store/index";
+import { useWeatherState } from "@/store/weatherState";
 
 export default {
   name: "DailyForecast",
@@ -65,7 +67,7 @@ export default {
     SwiperSlide,
   },
   setup() {
-    const store = useStore();
+    const weatherState = useWeatherState();
 
     function getDate(date) {
       let fullDate = new Date(date).toDateString();
@@ -74,10 +76,21 @@ export default {
       return `${splitDate[0]}, ${splitDate[1]} ${splitDate[2]}`;
     }
 
+    function setIcon(weatherCode) {
+      if (weatherCode >= 200 && weatherCode <= 233) return "thunderstorm.png";
+      else if (weatherCode >= 300 && weatherCode <= 522) return "rain.png";
+      else if (weatherCode >= 600 && weatherCode <= 623) return "snow.png";
+      else if (weatherCode >= 700 && weatherCode <= 751) return "fog.png";
+      else if (weatherCode == 800) return "clear.png";
+      else if (weatherCode >= 801 && weatherCode <= 804) return "clouds.png";
+      else return "unknown.png";
+    }
+
     return {
       modules: [FreeMode],
-      store,
+      weatherState,
       getDate,
+      setIcon,
     };
   },
 };

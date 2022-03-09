@@ -1,18 +1,18 @@
 <template>
-  <div :class="store.backgroundClass"></div>
+  <div :class="weatherState.getBackground"></div>
 </template>
 
 <script>
-import { useStore } from "@/store/index";
+import { useWeatherState } from "@/store/weatherState";
 
 export default {
   name: "Background",
 
   setup() {
-    const store = useStore();
+    const weatherState = useWeatherState();
 
     return {
-      store,
+      weatherState,
     };
   },
 };

@@ -1,17 +1,19 @@
 <template>
   <div id="app">
     <video
-      v-if="typeof store.weather.data == 'undefined'"
+      v-if="typeof weatherState.weather.data === 'undefined'"
       class="start-video"
       src="./assets/nature.mp4"
       autoplay
+      playsinline
+      webkit-playsinline
       loop
       preload="auto"
       muted
       type="video/mp4"
     ></video>
     <Background
-      v-if="typeof store.weather.data != 'undefined'"
+      v-if="typeof weatherState.weather.data !== 'undefined'"
       class="background"
     />
     <main>
@@ -26,26 +28,29 @@
         <FindLocation class="location-icon" title="Share location" />
         <i @click="getWeather" class="fas fa-search"></i>
       </div>
-      <div v-if="typeof store.weather.data != 'undefined'" class="weather-box">
+      <div
+        v-if="typeof weatherState.weather.data !== 'undefined'"
+        class="weather-box"
+      >
         <div class="location">
-          <span class="city">{{ store.weather.city_name }}</span
+          <span class="city">{{ weatherState.weather.city_name }}</span
           >,
-          {{ store.weather.country_code }}
+          {{ weatherState.weather.country_code }}
         </div>
         <div class="date">
-          <span class="day">Today</span> {{ store.getCurrentDate() }}
+          <span class="day">Today</span> {{ weatherState.getCurrentDate }}
         </div>
         <div class="temp">
-          {{ Math.floor(store.weather.data[0].temp)
+          {{ Math.floor(weatherState.weather.data[0].temp)
           }}<span class="degrees">°C</span>
         </div>
         <div class="weather">
-          {{ store.weather.data[0].weather.description }}
+          {{ weatherState.weather.data[0].weather.description }}
         </div>
       </div>
       <DailyForecast
+        v-if="typeof weatherState.weather.data !== 'undefined'"
         class="daily-forecast"
-        v-if="typeof store.weather.data != 'undefined'"
       />
     </main>
   </div>
@@ -53,7 +58,8 @@
 
 <script>
 import { ref } from "vue";
-import { useStore } from "@/store/index";
+import { useWeatherState } from "@/store/weatherState";
+import { useConstants } from "@/store/constants";
 import Background from "@/components/Background.vue";
 import FindLocation from "@/components/FindLocation.vue";
 import DailyForecast from "@/components/DailyForecast.vue";
@@ -67,27 +73,27 @@ export default {
   },
 
   setup() {
-    const store = useStore();
+    const weatherState = useWeatherState();
+    const constants = useConstants();
     const query = ref("");
 
     async function getWeather() {
       if (query.value != "") {
         try {
           let response = await fetch(
-            `${store.api_base}?city=${query.value}&days=8&key=${store.api_key}`
+            `${constants.api_base}?city=${query.value}&days=8&key=${constants.api_key}`
           );
-          store.weather = await response.json();
+          weatherState.setWeather(await response.json());
         } catch (error) {
           alert(error);
         }
 
-        store.setBackground();
         query.value = "";
       }
     }
 
     return {
-      store,
+      weatherState,
       query,
       getWeather,
     };

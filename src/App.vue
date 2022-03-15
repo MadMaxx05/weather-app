@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <video
-      v-if="typeof weatherState.weather.data === 'undefined'"
+      v-if="!weatherState.weather.data"
       class="start-video"
       src="./assets/nature.mp4"
       autoplay
@@ -12,26 +12,10 @@
       muted
       type="video/mp4"
     ></video>
-    <Background
-      v-if="typeof weatherState.weather.data !== 'undefined'"
-      class="background"
-    />
+    <Background v-if="weatherState.weather.data" class="background" />
     <main>
-      <div class="search-box">
-        <input
-          type="text"
-          class="search-bar"
-          placeholder="Search for your city..."
-          v-model="query"
-          @keypress.enter="getWeather"
-        />
-        <FindLocation class="location-icon" title="Share location" />
-        <i @click="getWeather" class="fas fa-search"></i>
-      </div>
-      <div
-        v-if="typeof weatherState.weather.data !== 'undefined'"
-        class="weather-box"
-      >
+      <SearchBox />
+      <div v-if="weatherState.weather.data" class="weather-box">
         <div class="location">
           <span class="city">{{ weatherState.weather.city_name }}</span
           >,
@@ -48,54 +32,30 @@
           {{ weatherState.weather.data[0].weather.description }}
         </div>
       </div>
-      <DailyForecast
-        v-if="typeof weatherState.weather.data !== 'undefined'"
-        class="daily-forecast"
-      />
+      <DailyForecast v-if="weatherState.weather.data" class="daily-forecast" />
     </main>
   </div>
 </template>
 
 <script>
-import { ref } from "vue";
 import { useWeatherState } from "@/store/weatherState";
-import { useConstants } from "@/store/constants";
 import Background from "@/components/Background.vue";
-import FindLocation from "@/components/FindLocation.vue";
+import SearchBox from "@/components/SearchBox.vue";
 import DailyForecast from "@/components/DailyForecast.vue";
 
 export default {
   name: "App",
   components: {
     Background,
-    FindLocation,
+    SearchBox,
     DailyForecast,
   },
 
   setup() {
     const weatherState = useWeatherState();
-    const constants = useConstants();
-    const query = ref("");
-
-    async function getWeather() {
-      if (query.value != "") {
-        try {
-          let response = await fetch(
-            `${constants.api_base}?city=${query.value}&days=8&key=${constants.api_key}`
-          );
-          weatherState.setWeather(await response.json());
-        } catch (error) {
-          alert(error);
-        }
-
-        query.value = "";
-      }
-    }
 
     return {
       weatherState,
-      query,
-      getWeather,
     };
   },
 };
@@ -137,47 +97,6 @@ body {
     );
     min-height: 100vh;
     padding: 30px;
-
-    .search-box {
-      position: relative;
-      margin: 0 auto;
-      margin-bottom: 40px;
-      width: 100%;
-      max-width: 700px;
-
-      .search-bar {
-        width: 100%;
-        padding: 13px 25px;
-        padding-right: 92px;
-        font-size: 15px;
-        outline: none;
-        border: none;
-        background: none;
-        background-color: #fff;
-        color: rgb(56, 56, 56);
-        border-radius: 40px;
-      }
-
-      .location-icon {
-        padding: 8px;
-        position: absolute;
-        top: 13%;
-        right: 56px;
-        color: rgb(55, 110, 182);
-        font-size: 18px;
-        cursor: pointer;
-      }
-
-      .fa-search {
-        padding: 8px;
-        position: absolute;
-        top: 13%;
-        right: 18px;
-        color: rgb(55, 110, 182);
-        font-size: 18px;
-        cursor: pointer;
-      }
-    }
 
     .weather-box {
       margin-bottom: 30px;

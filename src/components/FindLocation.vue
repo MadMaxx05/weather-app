@@ -27,6 +27,7 @@ export default {
         weatherState.setWeather(await response.json());
         weatherState.isSpinning = false;
       } catch (err) {
+        weatherState.isSpinning = false;
         alert(err);
       }
     }

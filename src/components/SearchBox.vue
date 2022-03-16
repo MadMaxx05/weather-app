@@ -9,7 +9,7 @@
         v-model="query"
         @input="filterCities"
         @keypress.enter="getWeather"
-        @focus="if (query.length >= 3) isVisible = true;"
+        @focus="if (isUsingEnglish() && query.length >= 3) isVisible = true;"
       />
       <FindLocation
         class="location-icon"
@@ -61,8 +61,12 @@ export default {
     const isVisible = ref(false);
     const isLoaded = ref(false);
 
+    function isUsingEnglish() {
+      return /^[a-zA-Z]+$/.test(query.value);
+    }
+
     async function filterCities() {
-      if (query.value.length >= 3) {
+      if (query.value.length >= 3 && isUsingEnglish()) {
         if (!isLoaded.value) {
           await findCity();
         }
@@ -116,6 +120,7 @@ export default {
           weatherState.setWeather(await response.json());
           weatherState.isSpinning = false;
         } catch (error) {
+          weatherState.isSpinning = false;
           alert(error);
         }
 
@@ -128,6 +133,7 @@ export default {
       isVisible,
       cities,
       filteredCities,
+      isUsingEnglish,
       filterCities,
       findCity,
       setCity,
@@ -195,7 +201,7 @@ export default {
 
     ul {
       list-style-type: none;
-      padding: 4px 0;
+      padding: 7px 0;
 
       li {
         padding: 9px 23px;

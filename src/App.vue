@@ -14,7 +14,12 @@
     ></video>
     <Background v-if="weatherState.weather.data" class="background" />
     <main>
-      <SearchBox />
+      <div class="loading-spinner">
+        <transition>
+          <LoadingSpinner v-if="weatherState.isSpinning" />
+        </transition>
+      </div>
+      <SearchBox class="search-box" />
       <div v-if="weatherState.weather.data" class="weather-box">
         <div class="location">
           <span class="city">{{ weatherState.weather.city_name }}</span
@@ -39,6 +44,7 @@
 
 <script>
 import { useWeatherState } from "@/store/weatherState";
+import LoadingSpinner from "@/components/LoadingSpinner.vue";
 import Background from "@/components/Background.vue";
 import SearchBox from "@/components/SearchBox.vue";
 import DailyForecast from "@/components/DailyForecast.vue";
@@ -46,6 +52,7 @@ import DailyForecast from "@/components/DailyForecast.vue";
 export default {
   name: "App",
   components: {
+    LoadingSpinner,
     Background,
     SearchBox,
     DailyForecast,
@@ -97,6 +104,11 @@ body {
     );
     min-height: 100vh;
     padding: 30px;
+
+    .loading-spinner {
+      position: relative;
+      z-index: 2;
+    }
 
     .weather-box {
       margin-bottom: 30px;
@@ -154,7 +166,18 @@ body {
   }
 
   .daily-forecast {
+    position: relative;
     margin: 0 -30px;
   }
+}
+
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.2s;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
 }
 </style>

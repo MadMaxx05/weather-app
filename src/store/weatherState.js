@@ -3,6 +3,7 @@ import { defineStore } from "pinia";
 export const useWeatherState = defineStore("weatherState", {
   state: () => {
     return {
+      isSpinning: false,
       weather: {},
     };
   },

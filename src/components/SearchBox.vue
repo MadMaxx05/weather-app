@@ -1,30 +1,36 @@
 <template>
-  <div class="overlay" @click="isVisible = false"></div>
-  <div class="search-box">
-    <input
-      type="text"
-      class="search-bar"
-      placeholder="Search for your city..."
-      v-model="query"
-      @input="filterCities"
-      @keypress.enter="getWeather"
-      @focus="if (query.length >= 3) isVisible = true;"
-    />
-    <FindLocation class="location-icon" title="Share location" />
-    <i @click="getWeather" class="fas fa-search"></i>
-    <div v-if="isVisible" class="autocomplete">
-      <ul>
-        <li
-          v-for="city in filteredCities.slice(0, 4)"
-          :key="city.id"
-          @click="setCity(city)"
-        >
-          {{ city }}
-        </li>
-        <li v-if="filteredCities.length === 0" class="no-results">
-          <span>No matching results</span>
-        </li>
-      </ul>
+  <div>
+    <div class="overlay" @click="isVisible = false"></div>
+    <div class="search-box">
+      <input
+        type="text"
+        class="search-bar"
+        placeholder="Search for your city..."
+        v-model="query"
+        @input="filterCities"
+        @keypress.enter="getWeather"
+        @focus="if (query.length >= 3) isVisible = true;"
+      />
+      <FindLocation
+        class="location-icon"
+        title="Share location"
+        @click="isVisible = false"
+      />
+      <i @click="getWeather" class="fas fa-search"></i>
+      <div v-if="isVisible" class="autocomplete">
+        <ul>
+          <li
+            v-for="city in filteredCities.slice(0, 8)"
+            :key="city.id"
+            @click="setCity(city)"
+          >
+            {{ city }}
+          </li>
+          <li v-if="filteredCities.length === 0" class="no-results">
+            <span>No matching results</span>
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
 </template>
@@ -101,12 +107,14 @@ export default {
 
     async function getWeather() {
       if (query.value != "") {
+        weatherState.isSpinning = true;
         isVisible.value = false;
         try {
           const response = await fetch(
             `${constants.api_base}?city=${query.value}&days=8&key=${constants.api_key}`
           );
           weatherState.setWeather(await response.json());
+          weatherState.isSpinning = false;
         } catch (error) {
           alert(error);
         }
@@ -133,7 +141,6 @@ export default {
 .overlay {
   position: fixed;
   inset: 0;
-  z-index: 1;
 }
 
 .search-box {
@@ -142,7 +149,6 @@ export default {
   margin-bottom: 40px;
   width: 100%;
   max-width: 700px;
-  z-index: 2;
 
   .search-bar {
     width: 100%;

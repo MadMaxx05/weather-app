@@ -1,0 +1,4 @@
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Сache-Control = "public, max-age=2678400, must-revalidate"

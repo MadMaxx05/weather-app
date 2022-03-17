@@ -1,4 +1,4 @@
 [[headers]]
   for = "/*"
   [headers.values]
-    Сache-Control = "public, max-age=2678400, must-revalidate"
+    cache-Control = "public, max-age=2678400, must-revalidate"

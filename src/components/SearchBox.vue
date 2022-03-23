@@ -8,8 +8,10 @@
         placeholder="Search for your city..."
         v-model="query"
         @input="filterCities"
-        @keypress.enter="getWeather"
-        @focus="if (isUsingEnglish() && query.length >= 3) isVisible = true;"
+        @keydown.down="onArrowDown"
+        @keydown.up="onArrowUp"
+        @keydown.enter="onEnter"
+        @focus="if (query.length >= 3) isVisible = true;"
       />
       <FindLocation
         class="location-icon"
@@ -20,13 +22,15 @@
       <div v-if="isVisible" class="autocomplete">
         <ul>
           <li
-            v-for="city in filteredCities.slice(0, 8)"
-            :key="city.id"
+            v-for="(city, id) in filteredCities"
+            :key="id"
+            @mouseover="setArrowCounter(id)"
             @click="setCity(city)"
+            :class="{ 'active': id === arrowCounter }"
           >
             {{ city }}
           </li>
-          <li v-if="filteredCities.length === 0" class="no-results">
+          <li v-if="!filteredCities.length" class="no-results">
             <span>No matching results</span>
           </li>
         </ul>
@@ -50,14 +54,19 @@ export default {
   setup() {
     const weatherState = useWeatherState();
     const constants = useConstants();
+
     const query = ref("");
+    const arrowCounter = ref(0);
+    const isHovering = ref(false);
+
     const cities = ref([]);
     const filteredCities = computed(() => {
       return arrayOfCities.value.filter((city) => {
         return city.toLowerCase().startsWith(query.value.toLowerCase());
-      });
+      }).slice(0, 8);
     });
     const arrayOfCities = ref([]);
+
     const isVisible = ref(false);
     const isLoaded = ref(false);
 
@@ -66,10 +75,11 @@ export default {
     }
 
     async function filterCities() {
-      if (query.value.length >= 3 && isUsingEnglish()) {
+      if (query.value.length >= 3) {
         if (!isLoaded.value) {
           await findCity();
         }
+        arrowCounter.value = 0;
         arrayOfCities.value = cities.value
           .map(({ fields }) => fields)
           .map(
@@ -102,6 +112,10 @@ export default {
       }
     }
 
+    function setArrowCounter(id) {
+      arrowCounter.value = id;
+    }
+
     function setCity(city) {
       query.value = city;
       isVisible.value = false;
@@ -109,8 +123,35 @@ export default {
       getWeather();
     }
 
+    function onArrowDown(event) {
+      event.preventDefault();
+
+      if (arrowCounter.value < filteredCities.value.length - 1) {
+        arrowCounter.value++;
+      } else {
+        arrowCounter.value = 0;
+      }
+    }
+
+    function onArrowUp(event) {
+      event.preventDefault();
+
+      if (arrowCounter.value > 0) {
+        arrowCounter.value--;
+      } else {
+        arrowCounter.value = filteredCities.value.length - 1;
+      }
+    }
+
+    function onEnter() {
+      if (filteredCities.value.length && query.value.length >= 3) {
+        query.value = filteredCities.value[arrowCounter.value];
+        getWeather();
+      }
+    }
+
     async function getWeather() {
-      if (query.value != "") {
+      if (query.value !== "") {
         weatherState.isSpinning = true;
         isVisible.value = false;
         try {
@@ -130,13 +171,19 @@ export default {
 
     return {
       query,
+      arrowCounter,
+      isHovering,
       isVisible,
       cities,
       filteredCities,
       isUsingEnglish,
       filterCities,
       findCity,
+      setArrowCounter,
       setCity,
+      onArrowDown,
+      onArrowUp,
+      onEnter,
       getWeather,
     };
   },
@@ -209,7 +256,7 @@ export default {
         color: rgb(56, 56, 56);
         cursor: default;
 
-        &:hover {
+        &.active, &:hover {
           background-color: rgb(235, 235, 235);
         }
 

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="overlay" @click="isVisible = false"></div>
+    <div class="overlay" @click="isVisible = false; arrowCounter = 0"></div>
     <div class="search-box">
       <input
         type="text"
@@ -16,9 +16,9 @@
       <FindLocation
         class="location-icon"
         title="Share location"
-        @click="isVisible = false"
+        @click="isVisible = false; query = ''"
       />
-      <i @click="getWeather" class="fas fa-search"></i>
+      <i @click="onEnter" class="fas fa-search"></i>
       <div v-if="isVisible" class="autocomplete">
         <ul>
           <li
@@ -70,15 +70,12 @@ export default {
     const isVisible = ref(false);
     const isLoaded = ref(false);
 
-    function isUsingEnglish() {
-      return /^[a-zA-Z]+$/.test(query.value);
-    }
-
     async function filterCities() {
       if (query.value.length >= 3) {
         if (!isLoaded.value) {
           await findCity();
         }
+
         arrowCounter.value = 0;
         arrayOfCities.value = cities.value
           .map(({ fields }) => fields)
@@ -176,7 +173,6 @@ export default {
       isVisible,
       cities,
       filteredCities,
-      isUsingEnglish,
       filterCities,
       findCity,
       setArrowCounter,
@@ -256,7 +252,7 @@ export default {
         color: rgb(56, 56, 56);
         cursor: default;
 
-        &.active, &:hover {
+        &.active {
           background-color: rgb(235, 235, 235);
         }
 

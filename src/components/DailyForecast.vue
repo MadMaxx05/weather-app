@@ -5,7 +5,8 @@
       class="daily-forecast"
       :slidesPerView="1.5"
       :spaceBetween="17"
-      :freeMode="true"
+      :mousewheel="true"
+      :keyboard="true"
       :breakpoints="{
         '375': {
           slidesPerView: 2,
@@ -56,7 +57,7 @@ import { Swiper, SwiperSlide } from "swiper/vue/swiper-vue.js";
 import "swiper/swiper-bundle.min.css";
 
 // Import required modules
-import { FreeMode } from "swiper";
+import { Mousewheel, Keyboard } from "swiper";
 
 import { useWeatherState } from "@/store/weatherState";
 
@@ -87,7 +88,7 @@ export default {
     }
 
     return {
-      modules: [FreeMode],
+      modules: [Mousewheel, Keyboard],
       weatherState,
       getDate,
       setIcon,

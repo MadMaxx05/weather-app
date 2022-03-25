@@ -73,13 +73,13 @@ export default {
 
     onMounted(() => {
       if (localStorage.search) {
-        query.value = localStorage.search;
+        query.value = localStorage.getItem("search");
         getWeather();
       }
     })
 
     watch(search, (newSearch) => {
-      localStorage.search = newSearch;
+      localStorage.setItem("search", newSearch);
     })
 
     async function filterCities() {

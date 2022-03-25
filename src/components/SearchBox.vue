@@ -2,6 +2,7 @@
   <div>
     <div class="overlay" @click="isVisible = false; arrowCounter = 0"></div>
     <div class="search-box">
+      <i class="fa-solid fa-house"></i>
       <input
         type="text"
         class="search-bar"
@@ -40,7 +41,7 @@
 </template>
 
 <script>
-import { computed, ref } from "vue";
+import { computed, ref, onMounted, watch } from "vue";
 import { useConstants } from "@/store/constants";
 import { useWeatherState } from "@/store/weatherState";
 import FindLocation from "@/components/FindLocation.vue";
@@ -56,8 +57,8 @@ export default {
     const constants = useConstants();
 
     const query = ref("");
+    const search = ref("");
     const arrowCounter = ref(0);
-    const isHovering = ref(false);
 
     const cities = ref([]);
     const filteredCities = computed(() => {
@@ -69,6 +70,17 @@ export default {
 
     const isVisible = ref(false);
     const isLoaded = ref(false);
+
+    onMounted(() => {
+      if (localStorage.search) {
+        query.value = localStorage.search;
+        getWeather();
+      }
+    })
+
+    watch(search, (newSearch) => {
+      localStorage.search = newSearch;
+    })
 
     async function filterCities() {
       if (query.value.length >= 3) {
@@ -149,6 +161,7 @@ export default {
 
     async function getWeather() {
       if (query.value !== "") {
+        search.value = query.value;
         weatherState.isSpinning = true;
         isVisible.value = false;
         try {
@@ -169,7 +182,6 @@ export default {
     return {
       query,
       arrowCounter,
-      isHovering,
       isVisible,
       cities,
       filteredCities,

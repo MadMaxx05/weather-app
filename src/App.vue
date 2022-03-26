@@ -14,11 +14,10 @@
     ></video>
     <Background v-if="weatherState.weather.data" class="background" />
     <main>
-      <div class="loading-spinner">
-        <transition>
-          <LoadingSpinner v-if="weatherState.isSpinning" />
-        </transition>
-      </div>
+      <transition>
+        <LoadingSpinner v-if="weatherState.isSpinning" />
+      </transition>
+
       <SearchBox class="search-box" />
       <div v-if="weatherState.weather.data" class="weather-box">
         <div class="location">
@@ -77,12 +76,11 @@ export default {
 }
 
 body {
+  position: relative;
   font-family: "Montserrat", sans-serif;
 }
 
 #app {
-  position: relative;
-
   .start-video {
     position: absolute;
     height: 100%;
@@ -104,11 +102,6 @@ body {
     );
     min-height: 100vh;
     padding: 30px;
-
-    .loading-spinner {
-      position: relative;
-      z-index: 2;
-    }
 
     .weather-box {
       margin-bottom: 30px;

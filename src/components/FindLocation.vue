@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import { ref } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { useWeatherState } from "@/store/weatherState";
 import { useConstants } from "@/store/constants";
 
@@ -16,20 +16,23 @@ export default {
     const lat = ref();
     const lon = ref();
 
+    onMounted(() => {
+      if (localStorage.getItem("location")) {
+        [lat.value, lon.value] = JSON.parse(localStorage.getItem("location"));
+        getWeatherByLocation();
+      }
+    })
+
+    watch([lat, lon], ([newLat, newLon]) => {
+      localStorage.setItem("location", JSON.stringify([newLat, newLon]));
+      localStorage.removeItem("search");
+    });
+
     async function success(position) {
       lat.value = position.coords.latitude;
       lon.value = position.coords.longitude;
 
-      try {
-        let response = await fetch(
-          `${constants.api_base}?lat=${lat.value}&lon=${lon.value}&days=8&key=${constants.api_key}`
-        );
-        weatherState.setWeather(await response.json());
-        weatherState.isSpinning = false;
-      } catch (err) {
-        weatherState.isSpinning = false;
-        alert(err);
-      }
+      await getWeatherByLocation();
     }
 
     function error() {
@@ -45,6 +48,19 @@ export default {
       } else {
         weatherState.isSpinning = false;
         alert("Your browser doesn't support Geolocation.");
+      }
+    }
+
+    async function getWeatherByLocation() {
+      try {
+        let response = await fetch(
+            `${constants.api_base}?lat=${lat.value}&lon=${lon.value}&days=8&key=${constants.api_key}`
+        );
+        weatherState.setWeather(await response.json());
+        weatherState.isSpinning = false;
+      } catch (err) {
+        weatherState.isSpinning = false;
+        alert(err);
       }
     }
 

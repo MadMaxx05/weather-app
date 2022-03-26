@@ -2,7 +2,6 @@
   <div>
     <div class="overlay" @click="isVisible = false; arrowCounter = 0"></div>
     <div class="search-box">
-      <i class="fa-solid fa-house"></i>
       <input
         type="text"
         class="search-bar"
@@ -72,7 +71,7 @@ export default {
     const isLoaded = ref(false);
 
     onMounted(() => {
-      if (localStorage.search) {
+      if (localStorage.getItem("search")) {
         query.value = localStorage.getItem("search");
         getWeather();
       }
@@ -80,6 +79,7 @@ export default {
 
     watch(search, (newSearch) => {
       localStorage.setItem("search", newSearch);
+      localStorage.removeItem("location");
     })
 
     async function filterCities() {

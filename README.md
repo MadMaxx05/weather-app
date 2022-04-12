@@ -1,5 +1,7 @@
 # vue-weather-app
 
+### Demo: https://madmaxx-weather-app.netlify.app/
+
 ## Project setup
 ```
 yarn install
